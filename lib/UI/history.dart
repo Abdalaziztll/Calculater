@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 
 import '../Theme/theme.dart';
+import '../blocs/switch_bloc/switch_bloc.dart';
 
 class History extends StatelessWidget {
   History({Key? key}) : super(key: key);
@@ -40,21 +41,27 @@ class History extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              if (result.isNotEmpty) {
-                Navigator.pop(context);
-                Hive.box<HistoryItem>('history').clear();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('History cleared successfully'),
-                    duration: Duration(milliseconds: 1300),
-                  ),
-                );
-              }
-            },
-            color: state2.switchValue ? Colors.white : Colors.black,
-            icon: const Icon(Icons.auto_delete_outlined),
+          BlocProvider(
+            create: (context) => SwitchBloc(),
+            child: Builder(builder: (context) {
+              return IconButton(
+                onPressed: () {
+                  context.read<SwitchBloc>().add(WipeEvent());
+                  // if (result.isNotEmpty) {
+                  //   Navigator.pop(context);
+                  //   Hive.box<HistoryItem>('history').clear();
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text('History cleared successfully'),
+                  //       duration: Duration(milliseconds: 1300),
+                  //     ),
+                  //   );
+                  // }
+                },
+                color: state2.switchValue ? Colors.white : Colors.black,
+                icon: const Icon(Icons.auto_delete_outlined),
+              );
+            }),
           )
         ],
         flexibleSpace: Container(
@@ -63,6 +70,7 @@ class History extends StatelessWidget {
                   colors: [Color(0xff6ABA6D), Color(0xff85C888)])),
         ),
       ),
+      // convert the body here to bloc builder changing with the state 
       body: result.isEmpty
           ? const Center(
               child: Text(
